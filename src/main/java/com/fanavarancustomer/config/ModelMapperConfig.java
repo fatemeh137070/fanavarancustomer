@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fanavarancustomer.api.dto.activityLogDto.ActivityLogDto;
 import com.fanavarancustomer.dal.entity.ActivityLog;
 
+
 @Configuration
 public class ModelMapperConfig {
 
