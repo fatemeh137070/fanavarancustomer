@@ -35,10 +35,12 @@ public class Invoice {
     @Column(nullable = false)
     private boolean paid;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_service_id", nullable = false)
     private CustomerService customerService;
 
+    //چند تا فاکتور فقط مربوط به یک مشتری هست
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
