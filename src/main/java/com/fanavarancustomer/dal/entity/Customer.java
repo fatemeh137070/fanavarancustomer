@@ -30,9 +30,6 @@ public class Customer {
     @Column(nullable = false)
     private boolean corporate;
 
-    @Column(unique = true, nullable = false)
-    private String nationalIdOrCompanyRegNo;
-
     // ارتباط با سرویس های اجاره شده توسط مشتری
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerService> services;
@@ -49,7 +46,10 @@ public class Customer {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(unique = true)
     private String nationalId;
+
+    @Column(unique = true)
     private String companyRegNo;
 
 }

@@ -13,7 +13,6 @@ public class CustomerDto {
     private Long id;
     private String name;
     private boolean corporate;
-    private String nationalIdOrCompanyRegNo;
     private String nationalId;
     private String companyRegNo;
 }

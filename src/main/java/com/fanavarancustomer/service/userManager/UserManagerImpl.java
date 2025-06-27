@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 //@RequiredArgsConstructor
@@ -40,12 +42,27 @@ public class UserManagerImpl implements UserManager {
         this.passwordEncoder = passwordEncoder;
     }
 
+
+
+    @Transactional
     @Override
     public UserDto register(UserDto dto, String rawPassword, List<String> roles) {
+        if (dto.getUsername() == null || dto.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        if (rawPassword == null || rawPassword.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        if (roles == null || roles.isEmpty()) {
+            throw new IllegalArgumentException("User must have at least one role");
+        }
+
         Set<Role> userRoles = roles.stream()
                 .map(role -> roleRepository.findByName(RoleName.valueOf(role.toUpperCase()))
                         .orElseThrow(() -> new EntityNotFoundException("Role not found: " + role)))
                 .collect(Collectors.toSet());
+
+        LocalDateTime now = LocalDateTime.now();
 
         User user = User.builder()
                 .username(dto.getUsername())
@@ -62,24 +79,48 @@ public class UserManagerImpl implements UserManager {
                         .userId(savedUser.getId())
                         .action("REGISTER")
                         .description("User registered with username: " + savedUser.getUsername())
-                        .timestamp(LocalDateTime.now())
+                        .timestamp(now)
                         .build()
         );
 
-        return modelMapper.map(savedUser, UserDto.class);
+        // 🔥 دستی ساختن UserDto
+        return UserDto.builder()
+                .id(savedUser.getId())
+                .username(savedUser.getUsername())
+                .fullName(savedUser.getFullName())
+                .roles(savedUser.getRoles().stream()
+                        .map(role -> role.getName().name())
+                        .collect(Collectors.toSet()))
+                .build();
     }
-
-    @Override
     public UserDto getByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .map(user -> modelMapper.map(user, UserDto.class))
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        UserDto dto = modelMapper.map(user, UserDto.class);
+
+        Set<String> roleNames = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toSet());
+
+        dto.setRoles(roleNames);
+
+        return dto;
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userRepository.findAll().stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(user -> {
+                    UserDto dto = modelMapper.map(user, UserDto.class);
+                    Set<String> roleNames = user.getRoles().stream()
+                            .map(role -> role.getName().name())
+                            .collect(Collectors.toSet());
+                    dto.setRoles(roleNames);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 }

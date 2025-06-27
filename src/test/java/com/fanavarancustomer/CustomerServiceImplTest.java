@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class CustomerServiceImplTest {
-
     @Mock
     private CustomerRepository customerRepository;
 
@@ -33,7 +32,6 @@ public class CustomerServiceImplTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        // customerService به صورت خودکار با customerRepository و modelMapper مقداردهی می‌شود
     }
 
     @Test
@@ -42,7 +40,8 @@ public class CustomerServiceImplTest {
         CustomerDto dto = CustomerDto.builder()
                 .name("Test Customer")
                 .corporate(false)
-                .nationalIdOrCompanyRegNo("1234567890")
+                .nationalId("1234567890")
+                .companyRegNo(null)
                 .build();
 
         Customer entity = new Customer();
@@ -50,18 +49,17 @@ public class CustomerServiceImplTest {
         savedEntity.setId(1L);
         savedEntity.setName("Test Customer");
         savedEntity.setCorporate(false);
-        savedEntity.setNationalIdOrCompanyRegNo("1234567890");
+        savedEntity.setNationalId("1234567890");
 
         CustomerDto returnedDto = CustomerDto.builder()
                 .id(1L)
                 .name("Test Customer")
                 .corporate(false)
-                .nationalIdOrCompanyRegNo("1234567890")
+                .nationalId("1234567890")
                 .build();
 
-        when(customerRepository.existsByNationalIdOrCompanyRegNo(
-                dto.getNationalId(), dto.getCompanyRegNo()
-        )).thenReturn(false);
+        when(customerRepository.existsByNationalId("1234567890")).thenReturn(false);
+        when(customerRepository.existsByCompanyRegNo(null)).thenReturn(false);
 
         when(modelMapper.map(dto, Customer.class)).thenReturn(entity);
         when(customerRepository.save(entity)).thenReturn(savedEntity);
@@ -74,23 +72,41 @@ public class CustomerServiceImplTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Test Customer", result.getName());
+
+        verify(customerRepository).existsByNationalId("1234567890");
+        verify(customerRepository).existsByCompanyRegNo(null);
         verify(customerRepository).save(entity);
         verify(modelMapper).map(dto, Customer.class);
         verify(modelMapper).map(savedEntity, CustomerDto.class);
     }
 
     @Test
-    void testRegisterCustomer_Duplicate() {
+    void testRegisterCustomer_DuplicateNationalId() {
         // Arrange
         CustomerDto dto = CustomerDto.builder()
                 .name("Test Customer")
                 .corporate(false)
-                .nationalIdOrCompanyRegNo("1234567890")
+                .nationalId("1234567890")
                 .build();
 
-        when(customerRepository.existsByNationalIdOrCompanyRegNo(
-                dto.getNationalId(), dto.getCompanyRegNo()
-        )).thenReturn(true);
+        when(customerRepository.existsByNationalId("1234567890")).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(DuplicateEntityException.class, () -> customerService.registerCustomer(dto));
+        verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void testRegisterCustomer_DuplicateCompanyRegNo() {
+        // Arrange
+        CustomerDto dto = CustomerDto.builder()
+                .name("Company A")
+                .corporate(true)
+                .companyRegNo("CRN123456")
+                .build();
+
+        when(customerRepository.existsByNationalId(null)).thenReturn(false);
+        when(customerRepository.existsByCompanyRegNo("CRN123456")).thenReturn(true);
 
         // Act & Assert
         assertThrows(DuplicateEntityException.class, () -> customerService.registerCustomer(dto));

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
 
+
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
 
@@ -29,9 +30,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDto registerCustomer(CustomerDto dto) {
-        if (customerRepository.existsByNationalIdOrCompanyRegNo(dto.getNationalId(), dto.getCompanyRegNo())) {
-            throw new DuplicateEntityException("Customer with this National ID or Company Reg No already exists.");
+        if (dto.getNationalId() != null && customerRepository.existsByNationalId(dto.getNationalId())) {
+            throw new DuplicateEntityException("Customer with this National ID already exists.");
         }
+        if (dto.getCompanyRegNo() != null && customerRepository.existsByCompanyRegNo(dto.getCompanyRegNo())) {
+            throw new DuplicateEntityException("Customer with this Company Registration Number already exists.");
+        }
+
         Customer entity = modelMapper.map(dto, Customer.class);
         Customer saved = customerRepository.save(entity);
         return modelMapper.map(saved, CustomerDto.class);
@@ -57,6 +62,9 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDto updateCustomer(Long id, CustomerDto dto) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
+
+        // اگر می‌خواهی اعتبارسنجی روی nationalId یا companyRegNo در بروز رسانی هم داشته باشی، باید اضافه کنی
+
         modelMapper.map(dto, customer);
         Customer updated = customerRepository.save(customer);
         return modelMapper.map(updated, CustomerDto.class);

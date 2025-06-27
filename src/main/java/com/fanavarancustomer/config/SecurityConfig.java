@@ -33,11 +33,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults())   // فعال کردن Basic Auth
-            .csrf(csrf -> csrf.disable());          // غیر فعال کردن CSRF (برای API معمول است)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/roles/**").permitAll()  // ← اینجا مسیر درست شد
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }

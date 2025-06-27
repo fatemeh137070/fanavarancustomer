@@ -34,14 +34,12 @@ public class UserManagerImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    private ModelMapper modelMapper;
-
     private UserManagerImpl userManager;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        modelMapper = new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
         userManager = new UserManagerImpl(userRepository, activityLogService, roleRepository, modelMapper, passwordEncoder);
     }
 
@@ -134,5 +132,6 @@ public class UserManagerImplTest {
         assertEquals(2, result.size());
         assertEquals("u1", result.get(0).getUsername());
         assertTrue(result.get(0).getRoles().contains("ADMIN"));
+        assertTrue(result.get(1).getRoles().contains("CUSTOMER"));
     }
 }

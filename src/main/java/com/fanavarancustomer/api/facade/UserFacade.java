@@ -13,11 +13,12 @@ import java.util.List;
 //@RequiredArgsConstructor
 public class UserFacade {
 
+
+    private final UserManager userManager;
+
     public UserFacade(UserManager userManager) {
         this.userManager = userManager;
     }
-
-    private final UserManager userManager;
 
     public UserDto register(RegisterRequest request) {
         UserDto userDto = UserDto.builder()
