@@ -1,4 +1,77 @@
+# 🧩 Fanavaran Customer Management System
+
+یک سامانه‌ی مدیریت مشتریان و خدمات پشتیبانی است که توسط شرکت‌ها برای مدیریت مشتریان، سرویس‌های اجاره‌ای، صدور فاکتور، پشتیبانی فنی و ثبت لاگ‌های سیستمی استفاده می‌شود.
+
+---
+
+## 📌 ویژگی‌های اصلی پروژه
+
+- مدیریت **مشتریان** (حقیقی یا حقوقی)
+- ثبت و مدیریت **سرویس‌های اجاره‌شده**
+- صدور و پیگیری **فاکتورها** (خرید یا تمدید)
+- مدیریت **تیکت‌ها** و پاسخگویی پشتیبان
+- سیستم **نقش و کاربر** (Admin, Support, Customer)
+- ثبت **لاگ فعالیت‌ها** برای نظارت
+
+---
+
+## 🧱 معماری پروژه (معماری لایه‌ای)
+
+پروژه با معماری چند لایه‌ای (Multi-layered Architecture) طراحی شده و شامل لایه‌های زیر است:
+📦 controller ← مدیریت API و endpointها
+📦 facade ← واسط بین controller و service
+📦 service ← منطق تجاری و پردازش اصلی
+📦 dal (repository) ← ارتباط با دیتابیس (JPA)
+📦 entity ← مدل‌های پایگاه داده (JPA Entity)
+📦 dto ← انتقال داده بین لایه‌ها
+📦 mapper ← تبدیل Entity ↔ DTO
+📦 exception ← مدیریت خطاها
+📦 config ← پیکربندی پروژه
+
+
+
+
+
+---
+
+## 🚀 پیشنهادات برای بهبود آینده پروژه
+
+| حوزه              | پیشنهاد                                          |
+|-------------------|--------------------------------------------------|
+| 🔐 امنیت           | افزودن احراز هویت و سطح دسترسی با Spring Security و JWT |
+| 📊 گزارش‌گیری      | اضافه کردن داشبورد آماری برای مدیران با داده‌های فیلتر شده |
+| 🧩 معماری          | تبدیل به معماری میکروسرویس در نسخه آینده |
+| 🧰 مانیتورینگ      | اضافه کردن Spring Actuator و ELK برای لاگ و سلامت سیستم |
+| 🧾 مستندسازی       | اضافه کردن Swagger UI برای مشاهده و تست APIها |
+| ⬆️ CI/CD           | پیاده‌سازی GitHub Actions یا Jenkins برای استقرار خودکار |
+| 🔄 بهینه‌سازی Mapper | استفاده از MapStruct به‌جای ModelMapper برای افزایش سرعت |
+| 💻 رابط کاربری     | ساخت پنل مدیریت با React/Vue برای Admin و Customer |
+
+---
+
+## ✅ پیش‌نیازهای اجرای پروژه
+
+- Java 21
+- Maven یا Gradle
+- PostgreSQL / H2 / MySQL (قابل تنظیم)
+- Spring Boot 3+
+- IntelliJ IDEA یا Eclipse
+
+---
+
+## 🛠️ نحوه اجرا در IntelliJ
+
+1. پروژه را Clone کن:
+   ```bash
+   git clone https://github.com/your-username/fanavaran-customer.git
+
+
+
+
+
 🔗 روابط بین موجودیت‌ها (Entity Relationships)
+
+
 
 Customer (1) ────────────▶ (*) CustomerService
 Customer (1) ────────────▶ (*) Invoice
@@ -12,22 +85,7 @@ User (*) ────────────────◀▶ (*) Role
 
 سیستم مدیریت مشتریان، سرویس‌ها، فاکتورها، تیکت‌ها، پاسخ‌ها و لاگ‌های فعالیت کاربران
 
-## 📦 تکنولوژی‌های استفاده‌شده
 
-- Java 21
-- Spring Boot
-- Spring Data JPA (Hibernate)
-- H2 Database (In-memory)
-- Modelmapper
-- Lombok
-- REST API
-- IntelliJ IDEA
-
----
-
-## 📁 ساختار کلی پروژه
-
----
 
 ## 🔗 روابط بین موجودیت‌ها (Entity Relationships)
 
@@ -41,19 +99,5 @@ User (*) ────────────────◀▶ (*) Role
 | `User` → `TicketResponse` | OneToMany | یک کاربر چند پاسخ ثبت کرده |
 | `User` → `ActivityLog` | OneToMany | یک کاربر چند لاگ دارد |
 | `User` ↔ `Role` | ManyToMany | چند نقش برای هر کاربر و برعکس |
-
----
-
-## 🔌 اجرا و تست
-
-### 1. اجرای برنامه در IntelliJ
-
-- پروژه را باز کن.
-- مطمئن شو فایل `application.properties` به درستی تنظیم شده:
-  ```properties
-  spring.datasource.url=jdbc:h2:mem:librarydb
-  spring.jpa.hibernate.ddl-auto=create-drop
-  spring.h2.console.enabled=true
-  server.port=8384
 
 
