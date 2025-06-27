@@ -33,7 +33,7 @@ public class RoleManagerImpl implements RoleManager {
     @Override
     public RoleDto create(RoleDto dto) {
         Role role = Role.builder()
-                .name(RoleName.valueOf(dto.getName().toUpperCase()))
+                .name(RoleName.valueOf(dto.getName().name()))
                 .build();
 
         Role saved = roleRepository.save(role);

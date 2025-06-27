@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.*;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
 
@@ -30,6 +31,9 @@ public class UserManagerImplTest {
     @Mock
     private ActivityLogService activityLogService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     private ModelMapper modelMapper;
 
     private UserManagerImpl userManager;
@@ -38,7 +42,7 @@ public class UserManagerImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         modelMapper = new ModelMapper();
-        userManager = new UserManagerImpl(userRepository, activityLogService, roleRepository, modelMapper);
+        userManager = new UserManagerImpl(userRepository, activityLogService, roleRepository, modelMapper, passwordEncoder);
     }
 
     @Test
@@ -56,6 +60,7 @@ public class UserManagerImplTest {
             u.setId(99L);
             return u;
         });
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
 
         UserDto dto = UserDto.builder()
                 .username(username)

@@ -41,8 +41,8 @@ public class RoleManagerImplTest {
                 Role.builder().id(2L).name(RoleName.CUSTOMER).build()
         );
         List<RoleDto> dtos = List.of(
-                RoleDto.builder().id(1L).name("ADMIN").build(),
-                RoleDto.builder().id(2L).name("CUSTOMER").build()
+                RoleDto.builder().id(1L).name(RoleName.ADMIN).build(),
+                RoleDto.builder().id(2L).name(RoleName.CUSTOMER).build()
         );
 
         when(roleRepository.findAll()).thenReturn(roles);
@@ -55,8 +55,8 @@ public class RoleManagerImplTest {
 
         // Then
         assertEquals(2, result.size());
-        assertEquals("ADMIN", result.get(0).getName());
-        assertEquals("CUSTOMER", result.get(1).getName());
+        assertEquals(RoleName.ADMIN, result.get(0).getName());
+        assertEquals(RoleName.CUSTOMER, result.get(1).getName());
         verify(roleRepository).findAll();
         verify(modelMapper).map(roles.get(0), RoleDto.class);
         verify(modelMapper).map(roles.get(1), RoleDto.class);
@@ -65,9 +65,9 @@ public class RoleManagerImplTest {
     @Test
     void testCreateRole() {
         // Given
-        RoleDto dto = RoleDto.builder().name("SUPPORT").build();
+        RoleDto dto = RoleDto.builder().name(RoleName.SUPPORT).build();
         Role savedEntity = Role.builder().id(3L).name(RoleName.SUPPORT).build();
-        RoleDto returnedDto = RoleDto.builder().id(3L).name("SUPPORT").build();
+        RoleDto returnedDto = RoleDto.builder().id(3L).name(RoleName.SUPPORT).build();
 
         when(roleRepository.save(any(Role.class))).thenReturn(savedEntity);
         when(modelMapper.map(savedEntity, RoleDto.class)).thenReturn(returnedDto);
@@ -77,7 +77,7 @@ public class RoleManagerImplTest {
 
         // Then
         assertNotNull(result.getId());
-        assertEquals("SUPPORT", result.getName());
+        assertEquals(RoleName.SUPPORT, result.getName());
         verify(roleRepository).save(any(Role.class));
         verify(modelMapper).map(savedEntity, RoleDto.class);
     }

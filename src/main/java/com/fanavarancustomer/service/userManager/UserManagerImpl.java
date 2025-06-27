@@ -11,6 +11,7 @@ import com.fanavarancustomer.service.activityLogService.ActivityLogService;
 import com.fanavarancustomer.service.eum.RoleName;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,15 +27,17 @@ public class UserManagerImpl implements UserManager {
     private final ActivityLogService activityLogService;
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UserManagerImpl(UserRepository userRepository,
                            ActivityLogService activityLogService,
                            RoleRepository roleRepository,
-                           ModelMapper modelMapper) {
+                           ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.activityLogService = activityLogService;
         this.roleRepository = roleRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class UserManagerImpl implements UserManager {
 
         User user = User.builder()
                 .username(dto.getUsername())
-//                .password(passwordEncoder.encode(rawPassword))
+                .password(passwordEncoder.encode(rawPassword))
                 .fullName(dto.getFullName())
                 .active(true)
                 .roles(userRoles)
