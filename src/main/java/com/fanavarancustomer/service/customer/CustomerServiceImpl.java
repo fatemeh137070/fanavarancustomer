@@ -3,7 +3,9 @@ package com.fanavarancustomer.service.customer;
 
 import com.fanavarancustomer.api.dto.CustomerDto;
 import com.fanavarancustomer.dal.entity.Customer;
+import com.fanavarancustomer.dal.entity.User;
 import com.fanavarancustomer.dal.repository.CustomerRepository;
+import com.fanavarancustomer.dal.repository.userRepository.UserRepository;
 import com.fanavarancustomer.exception.DuplicateEntityException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +24,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, ModelMapper modelMapper) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, ModelMapper modelMapper, UserRepository userRepository) {
         this.customerRepository = customerRepository;
         this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -36,10 +40,15 @@ public class CustomerServiceImpl implements CustomerService {
         if (dto.getCompanyRegNo() != null && customerRepository.existsByCompanyRegNo(dto.getCompanyRegNo())) {
             throw new DuplicateEntityException("Customer with this Company Registration Number already exists.");
         }
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + dto.getUserId()));
 
         Customer entity = modelMapper.map(dto, Customer.class);
+        entity.setUser(user);  // ست کردن یوزر روی موجودیت مشتری
+
         Customer saved = customerRepository.save(entity);
         return modelMapper.map(saved, CustomerDto.class);
+
     }
 
     @Override
@@ -63,12 +72,26 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
 
-        // اگر می‌خواهی اعتبارسنجی روی nationalId یا companyRegNo در بروز رسانی هم داشته باشی، باید اضافه کنی
+        // جلوگیری از تغییر شناسه توسط modelMapper
+        dto.setId(null); // 👈 خط بسیار مهم برای جلوگیری از overwrite شدن id
 
-        modelMapper.map(dto, customer);
+        // نگاشت دستی فقط فیلدهای قابل به‌روزرسانی
+        customer.setName(dto.getName());
+        customer.setCorporate(dto.isCorporate());
+        customer.setNationalId(dto.getNationalId());
+        customer.setCompanyRegNo(dto.getCompanyRegNo());
+
+        // اگر userId هم نیاز به آپدیت داشت
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + dto.getUserId()));
+            customer.setUser(user);
+        }
+
         Customer updated = customerRepository.save(customer);
         return modelMapper.map(updated, CustomerDto.class);
     }
+
 
     @Override
     public void deleteCustomer(Long id) {

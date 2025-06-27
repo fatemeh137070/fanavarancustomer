@@ -5,7 +5,8 @@ import com.fanavarancustomer.api.facade.CustomerServiceFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -24,9 +25,10 @@ public class CustomerServiceController {
         return ResponseEntity.ok(facade.create(dto));
     }
 
+
     @GetMapping
-    public ResponseEntity<List<CustomerServiceDto>> getAll() {
-        return ResponseEntity.ok(facade.getAll());
+    public ResponseEntity<Page<CustomerServiceDto>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(facade.getAll(pageable));
     }
 
     @GetMapping("/{id}")

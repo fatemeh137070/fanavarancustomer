@@ -4,8 +4,8 @@ import com.fanavarancustomer.api.dto.customerService.CustomerServiceDto;
 import com.fanavarancustomer.service.customerService.CustomerServiceManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Component
 //@RequiredArgsConstructor
@@ -20,8 +20,8 @@ public class CustomerServiceFacade {
         return manager.create(dto);
     }
 
-    public List<CustomerServiceDto> getAll() {
-        return manager.getAll();
+    public Page<CustomerServiceDto> getAll(Pageable pageable) {
+        return manager.getAll(pageable);
     }
 
     public CustomerServiceDto getById(Long id) {

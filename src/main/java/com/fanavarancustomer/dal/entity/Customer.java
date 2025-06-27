@@ -52,4 +52,5 @@ public class Customer {
     @Column(unique = true)
     private String companyRegNo;
 
+
 }

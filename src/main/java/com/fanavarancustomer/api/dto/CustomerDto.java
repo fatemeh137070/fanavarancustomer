@@ -15,4 +15,5 @@ public class CustomerDto {
     private boolean corporate;
     private String nationalId;
     private String companyRegNo;
+    private Long userId;
 }

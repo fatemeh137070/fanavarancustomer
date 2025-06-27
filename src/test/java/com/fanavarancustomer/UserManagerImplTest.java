@@ -34,13 +34,13 @@ public class UserManagerImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @InjectMocks
     private UserManagerImpl userManager;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ModelMapper modelMapper = new ModelMapper();
-        userManager = new UserManagerImpl(userRepository, activityLogService, roleRepository, modelMapper, passwordEncoder);
+        // مدل‌مپر داخل خود UserManagerImpl مقداردهی می‌شود (یا اگر لازم است اینجا اضافه کنید)
     }
 
     @Test
@@ -55,10 +55,10 @@ public class UserManagerImplTest {
         when(roleRepository.findByName(RoleName.CUSTOMER)).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
-            u.setId(99L);
+            u.setId(99L);  // شبیه‌سازی ID بعد از ذخیره
             return u;
         });
-        when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
+        when(passwordEncoder.encode(password)).thenReturn("encoded-password");
 
         UserDto dto = UserDto.builder()
                 .username(username)
@@ -68,11 +68,12 @@ public class UserManagerImplTest {
         UserDto result = userManager.register(dto, password, roleNames);
 
         assertNotNull(result.getId());
-        assertEquals("javad", result.getUsername());
+        assertEquals(username, result.getUsername());
         assertTrue(result.getRoles().contains("CUSTOMER"));
 
-        verify(userRepository, times(1)).save(any(User.class));
-        verify(roleRepository, times(1)).findByName(RoleName.CUSTOMER);
+        verify(roleRepository).findByName(RoleName.CUSTOMER);
+        verify(userRepository).save(any(User.class));
+        verify(passwordEncoder).encode(password);
     }
 
     @Test
@@ -88,7 +89,8 @@ public class UserManagerImplTest {
                 userManager.register(dto, "pass", List.of("ADMIN"))
         );
 
-        verify(roleRepository, times(1)).findByName(RoleName.ADMIN);
+        verify(roleRepository).findByName(RoleName.ADMIN);
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -120,9 +122,11 @@ public class UserManagerImplTest {
     void testGetAllUsers() {
         List<User> users = List.of(
                 User.builder().id(1L).username("u1").fullName("User One")
-                        .roles(Set.of(Role.builder().name(RoleName.ADMIN).build())).build(),
+                        .roles(Set.of(Role.builder().name(RoleName.ADMIN).build()))
+                        .build(),
                 User.builder().id(2L).username("u2").fullName("User Two")
-                        .roles(Set.of(Role.builder().name(RoleName.CUSTOMER).build())).build()
+                        .roles(Set.of(Role.builder().name(RoleName.CUSTOMER).build()))
+                        .build()
         );
 
         when(userRepository.findAll()).thenReturn(users);
